@@ -1,0 +1,553 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>A/B Test Idea: Interactive Plan Selector (QuickBooks CA)</title>\
+    <script src="https://cdn.tailwindcss.com"></script>\
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\
+    <style>\
+        body \{\
+            font-family: 'Inter', sans-serif;\
+        \}\
+        .qb-green \{ color: #2CA01C; \}\
+        .qb-bg-green \{ background-color: #2CA01C; \}\
+        .qb-border-green \{ border-color: #2CA01C; \}\
+\
+        /* Dark green colors for the 'You Plan' card */\
+        .qb-dark-bg-green \{ background-color: #1A7B12; \}\
+        .qb-dark-border-green \{ border-color: #1A7B12; \}\
+        .qb-dark-green-text \{ color: #1A7B12; \}\
+\
+\
+        select \{\
+            -webkit-appearance: none;\
+            -moz-appearance: none;\
+            appearance: none;\
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22%236B7280%22%3E%3Cpath%20d%3D%22M7.293%208.293a1%201%200%20011.414%200L10%209.586l1.293-1.293a1%201%200%20111.414%201.414l-2%202a1%201%200%2001-1.414%200l-2-2a1%201%200%20010-1.414z%22%20%2F%3E%3C%2Fsvg%3E');\
+            background-repeat: no-repeat;\
+            background-position: right 0.75rem center;\
+            background-size: 1.5em 1.5em;\
+            padding-right: 2.5rem;\
+            touch-action: manipulation;\
+        \}\
+\
+        .plan-card \{\
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; /* Add opacity to transition */\
+        \}\
+        .plan-card:hover \{\
+            transform: translateY(-5px);\
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);\
+        \}\
+\
+        /* Styles for the recommended card */\
+        .your-recommended-plan \{\
+            border: 3px solid #2CA01C; /* Solid green border */\
+            box-shadow: 0 0 15px rgba(44, 160, 28, 0.5); /* Green glow */\
+            order: -1; /* Place it first in flex/grid order */\
+        \}\
+         .your-recommended-plan .qb-green-text \{ color: #2CA01C; font-weight: 600; \} /* Style features text */\
+\
+\
+        .faded-plan \{\
+            opacity: 0.5; /* Reduced opacity */\
+            transform: translateY(0); /* Prevent hover effect on faded cards */\
+            box-shadow: none; /* Remove shadow on faded cards */\
+            pointer-events: none; /* Disable clicks on faded cards, except links/buttons if needed specifically */\
+        \}\
+         .faded-plan a, .faded-plan button \{ pointer-events: auto; cursor: pointer; \} /* Re-enable clicks for links/buttons */\
+\
+\
+        .mobile-menu \{ display: none; \}\
+        .mobile-menu.open \{ display: block; \}\
+\
+        /* Default Grid: 4 columns */\
+        .plans-grid \{\
+            display: grid;\
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Mobile default */\
+            gap: 1.5rem; /* Default gap */\
+        \}\
+\
+        @media (min-width: 768px) \{\
+            .plans-grid \{\
+                grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 columns on medium screens+ */\
+                gap: 2rem; /* Larger gap on medium+ */\
+            \}\
+             /* Recommended state grid: Recommended card spans 2, others flow */\
+             .plans-grid.is-recommended \{\
+                 grid-template-columns: repeat(4, minmax(0, 1fr)); /* Keep 4 column basis */\
+             \}\
+              .plans-grid.is-recommended .your-recommended-plan \{\
+                 grid-column: span 2; /* Recommended card spans 2 */\
+                 grid-column-start: 2; /* Start in column 2 to help center */\
+             \}\
+              .plans-grid.is-recommended .plan-card:not(.your-recommended-plan) \{\
+                 grid-column: span 1; /* Other cards span 1 */\
+             \}\
+        \}\
+\
+\
+        @media (max-width: 767px) \{ /* Stack columns on smaller screens */\
+            .plans-grid \{\
+                grid-template-columns: 1fr;\
+            \}\
+              .plans-grid .your-recommended-plan,\
+              .plans-grid .plan-card:not(.your-recommended-plan) \{\
+                 grid-column: span 1;\
+             \}\
+        \}\
+\
+\
+        @media (max-width: 640px) \{\
+            .text-3xl \{ font-size: 1.5rem; \}\
+            .text-2xl \{ font-size: 1.25rem; \}\
+            .text-xl \{ font-size: 1.125rem; \}\
+            .py-12 \{ padding-top: 2rem; padding-bottom: 2rem; \}\
+            .px-4 \{ padding-left: 1rem; padding-right: 1rem; \}\
+            .mb-12 \{ margin-bottom: 2rem; \}\
+            .mb-6 \{ margin-bottom: 1.5rem; \}\
+            select, button \{ font-size: 0.9rem; padding: 0.5rem; \}\
+            .plan-card \{ padding: 1rem; \}\
+            .plan-card h3 \{ font-size: 1.25rem; \}\
+            .plan-card p.text-3xl \{ font-size: 1.5rem; \}\
+              /* Adjust grid for mobile - stack all */\
+              .plans-grid \{\
+                 grid-template-columns: 1fr;\
+             \}\
+        \}\
+    </style>\
+</head>\
+<body class="bg-gray-50">\
+\
+    <nav class="bg-white shadow-sm">\
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">\
+            <div class="flex items-center justify-between h-16">\
+                <div class="flex items-center">\
+                    <div class="flex-shrink-0">\
+                        <img class="h-8 w-auto" src="https://placehold.co/150x40/2CA01C/FFFFFF?text=QuickBooks" alt="QuickBooks Logo">\
+                    </div>\
+                    <div class="hidden md:block">\
+                        <div class="ml-10 flex items-baseline space-x-4">\
+                            <a href="#" class="text-gray-700 hover:text-qb-green px-3 py-2 rounded-md text-sm font-medium">Products</a>\
+                            <a href="#" class="text-qb-green border-b-2 qb-border-green px-3 py-2 text-sm font-medium" aria-current="page">Pricing</a>\
+                            <a href="#" class="text-gray-700 hover:text-qb-green px-3 py-2 rounded-md text-sm font-medium">Support</a>\
+                        </div>\
+                    </div>\
+                </div>\
+                <div class="hidden md:block">\
+                    <a href="#" class="text-gray-700 hover:text-qb-green px-3 py-2 rounded-md text-sm font-medium">Sign In</a>\
+                    <a href="#" class="ml-4 qb-bg-green text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition duration-150">Free Trial</a>\
+                </div>\
+                <div class="-mr-2 flex md:hidden">\
+                    <button type="button" id="mobileMenuButton" class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-qb-green" aria-controls="mobile-menu" aria-expanded="false">\
+                        <span class="sr-only">Open main menu</span>\
+                        <svg class="block h-6 w-6" id="menuIconOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>\
+                        <svg class="hidden h-6 w-6" id="menuIconClose" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>\
+                    </button>\
+                </div>\
+            </div>\
+        </div>\
+        <div class="mobile-menu md:hidden" id="mobile-menu">\
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">\
+                <a href="#" class="text-gray-700 hover:bg-gray-50 hover:text-qb-green block px-3 py-2 rounded-md text-base font-medium">Products</a>\
+                <a href="#" class="text-qb-green bg-green-50 block px-3 py-2 rounded-md text-base font-medium" aria-current="page">Pricing</a>\
+                <a href="#" class="text-gray-700 hover:bg-gray-50 hover:text-qb-green block px-3 py-2 rounded-md text-base font-medium">Support</a>\
+            </div>\
+            <div class="pt-4 pb-3 border-t border-gray-200">\
+                <div class="flex items-center px-5">\
+                    <a href="#" class="text-gray-700 hover:text-qb-green block rounded-md py-2 px-3 text-base font-medium">Sign In</a>\
+                </div>\
+                <div class="mt-3 px-2 space-y-1">\
+                    <a href="#" class="block w-full text-center qb-bg-green text-white px-4 py-2 rounded-full text-base font-medium hover:bg-green-700 transition duration-150">Free Trial</a>\
+                </div>\
+            </div>\
+        </div>\
+    </nav>\
+\
+    <div class="py-12 px-4 sm:px-6 lg:px-8">\
+        <div class="max-w-5xl mx-auto">\
+            <div class="text-center mb-12">\
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-5xl">Find the QuickBooks plan that's right for your business.</h1>\
+                <p class="mt-3 text-lg text-gray-600 sm:mt-4 sm:text-xl">Answer a few quick questions, and we'll suggest the best fit.</p>\
+            </div>\
+\
+            <div id="interactiveSelector" class="bg-white p-6 sm:p-8 rounded-xl shadow-xl mb-12 sm:mb-16 border-2 border-qb-green">\
+                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-6 text-center">Let's find your perfect plan!</h2>\
+\
+                <div class="mb-6 sm:mb-8">\
+                    <label for="businessGoal" class="block text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3">1. What's your primary business goal right now?</label>\
+                    <select id="businessGoal" name="businessGoal" class="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-qb-green focus:border-qb-green sm:text-sm text-base">\
+                        <option value="">Please select a goal...</option>\
+                        <option value="Manage Day-to-Day Finances">Manage Day-to-Day Finances (Track income, expenses, cash flow)</option>\
+                        <option value="Send Invoices & Get Paid">Send Invoices & Get Paid (Create professional invoices, track payments)</option>\
+                        <option value="Prepare for Tax Time">Prepare for Tax Time (Organize financials for easy tax filing)</option>\
+                        <option value="Pay My Team">Pay My Team (Manage payroll and employee payments)</option>\
+                    </select>\
+                </div>\
+\
+                <div class="mb-6 sm:mb-8">\
+                    <label for="userCount" class="block text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3">2. How many people need access to QuickBooks?</label>\
+                    <select id="userCount" name="userCount" class="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-qb-green focus:border-qb-green sm:text-sm text-base">\
+                        <option value="">How many users?</option>\
+                        <option value="Just Me">Just Me</option>\
+                        <option value="2-3 People">2-3 People</option>\
+                        <option value="4+ People">4+ People</option>\
+                    </select>\
+                </div>\
+\
+                <div class="mb-6 sm:mb-8">\
+                    <label for="integrationNeeds" class="block text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3">3. Do you need to integrate QuickBooks with other tools?</label>\
+                    <select id="integrationNeeds" name="integrationNeeds" class="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-qb-green focus:border-qb-green sm:text-sm text-base">\
+                        <option value="">Select integration needs...</option>\
+                        <option value="No Integrations">No, I don\'92t use other tools</option>\
+                        <option value="Basic Integrations">Yes, basic integrations (e.g., PayPal, Square)</option>\
+                        <option value="Advanced Integrations">Yes, advanced integrations (e.g., Shopify, CRM tools)</option>\
+                    </select>\
+                </div>\
+\
+                <div class="mb-6 sm:mb-8">\
+                    <label for="clientManagement" class="block text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3">4. How important is client management to your business?</label>\
+                    <select id="clientManagement" name="clientManagement" class="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-qb-green focus:border-qb-green sm:text-sm text-base">\
+                        <option value="">Select client management needs...</option>\
+                        <option value="Not Important">Not important</option>\
+                        <option value="Somewhat Important">Somewhat important (e.g., basic invoicing)</option>\
+                        <option value="Very Important">Very Important (e.g., tracking client interactions, follow-ups)</option>\
+                    </select>\
+                </div>\
+\
+                 <div class="mb-6 sm:mb-8">\
+                    <label for="additionalFeatures" class="block text-base sm:text-lg font-medium text-gray-700 mb-2 sm:mb-3">5. Are there any specific features you know you'll need?</label>\
+                    <select id="additionalFeatures" name="additionalFeatures" class="mt-1 block w-full py-3 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-qb-green focus:border-qb-green sm:text-sm text-base">\
+                        <option value="">Select features needed...</option>\
+                        <option value="None">None specific</option>\
+                        <option value="Inventory Management">Inventory Management</option>\
+                        <option value="Tracking Project Profitability">Tracking Project Profitability</option>\
+                        <option value="Budgeting & Forecasting">Budgeting & Forecasting</option>\
+                        <option value="Advanced Reporting">Advanced Reporting</option>\
+                        <option value="Paying Bills">Paying Bills</option>\
+                        <option value="Track Time">Track Time</option>\
+                    </select>\
+                </div>\
+\
+                <div class="text-center mt-6 sm:mt-8">\
+                    <button id="findMyPlanBtn" class="qb-bg-green text-white font-semibold py-3 px-6 sm:px-8 rounded-full text-base sm:text-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-qb-green transition duration-150 ease-in-out disabled:opacity-50" onclick="showRecommendation()" disabled>\
+                        See My Recommendation\
+                    </button>\
+                </div>\
+            </div>\
+\
+             <div id="recommendationArea" class="hidden text-center mb-12 sm:mb-16">\
+                 <h3 class="text-xl sm:text-2xl font-semibold text-qb-green mb-3">Based on your selections, we recommend:</h3>\
+                  <p class="text-lg text-gray-700 mb-6" id="recommendationReasonText"></p>\
+             </div>\
+\
+\
+            <div class="text-center mb-8">\
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900" id="plansSectionTitle">Our Plans</h2>\
+                 <p class="text-base sm:text-lg text-gray-600" id="planSubtitle">Choose the one that fits your business today and scales for tomorrow.</p>\
+            </div>\
+\
+            <div class="grid gap-6 sm:gap-8 plans-grid" id="plansGridDisplayArea">\
+                 <div id="plan-your-recommendation" class="plan-card bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col relative hidden">\
+                     <div class="absolute top-0 right-0 bg-green-100 text-qb-green px-2 sm:px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">Recommended</div>\
+                     <h3 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-1" id="yourPlanTitle">QuickBooks [Plan Name]</h3>\
+                     <p class="text-gray-500 text-sm sm:text-base" id="yourPlanTagline"></p>\
+                     <p class="text-3xl sm:text-4xl font-bold text-gray-900 my-4" id="yourPlanPrice">$--<span class="text-lg font-normal text-gray-500">/mo</span></p>\
+\
+                     <div class="border-t border-gray-200 pt-6 mt-auto"> <h4 class="text-lg font-semibold text-gray-800 mb-3">Key Features Based on Your Needs:</h4>\
+                         <ul class="space-y-2 text-sm text-gray-600" id="yourPlanDynamicFeatures">\
+                             </ul>\
+                     </div>\
+                     <div class="mt-6 pt-6 border-t border-gray-200"> <a href="#interactiveSelector" class="w-full text-center qb-bg-green text-white py-2 px-4 rounded-full font-semibold hover:bg-green-700 mb-3 sm:mb-4 text-sm sm:text-base block" id="yourPlanCTA">Sign Up</a>\
+                         <a href="#interactiveSelector" class="w-full text-center border-2 qb-border-green qb-green py-2 px-4 rounded-full font-semibold hover:bg-green-50 text-sm sm:text-base block">Free 30-Day Trial</a>\
+                     </div>\
+                 </div>\
+\
+\
+             </div>\
+\
+             <div id="allPlansTemplate" class="hidden">\
+                 <div id="plan-easystart" class="plan-card bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col">\
+                     <h3 class="text-xl sm:text-2xl font-semibold text-gray-900">EasyStart</h3>\
+                     <p class="text-gray-500 mt-1 text-sm sm:text-base">Ideal for new businesses & freelancers.</p>\
+                     <p class="text-3xl sm:text-4xl font-bold text-gray-900 my-4">$20<span class="text-lg font-normal text-gray-500">/mo</span></p>\
+                     <div class="mt-auto">\
+                         <a href="#" class="w-full text-center qb-bg-green text-white py-2 px-4 rounded-full font-semibold hover:bg-green-700 mb-3 sm:mb-4 text-sm sm:text-base block">Buy Now</a>\
+                         <a href="#" class="w-full text-center border-2 qb-border-green qb-green py-2 px-4 rounded-full font-semibold hover:bg-green-50 text-sm sm:text-base block">Free 30-Day Trial</a>\
+                     </div>\
+                     <ul class="mt-6 space-y-2 text-sm text-gray-600">\
+                         <li>\uc0\u10003  Track income & expenses</li>\
+                         <li>\uc0\u10003  Send custom invoices & quotes</li>\
+                         <li>\uc0\u10003  Connect bank & credit cards</li>\
+                         <li>\uc0\u10003  Basic reporting</li>\
+                         <li>\uc0\u10003  1 user</li>\
+                     </ul>\
+                 </div>\
+\
+                 <div id="plan-essentials" class="plan-card bg-white p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col">\
+                     <h3 class="text-xl sm:text-2xl font-semibold text-gray-900">Essentials</h3>\
+                     <p class="text-gray-500 mt-1 text-sm sm:text-base">Great for growing small businesses.</p>\
+                     <p class="text-3xl sm:text-4xl font-bold text-gray-900 my-4">$35<span class="text-lg font-normal text-gray-500">/mo</span></p>\
+                     <div class="mt-auto">\
+                         <a href="#" class="w-full text-center qb-bg-green text-white py-2 px-4 rounded-full font-semibold hover:bg-green-700 mb-3 sm:mb-4 text-sm sm:text-base block">Buy Now</a>\
+                         <a href="#" class="w-full text-center border-2 qb-border-green qb-green py-2 px-4 rounded-full font-semibold hover:bg-green-50 text-sm sm:text-base block">Free 30-Day Trial</a>\
+                     </div>\
+                     <ul class="mt-6 space-y-2 text-sm text-gray-600">\
+                         <li>\uc0\u10003  All EasyStart features, plus:</li>\
+                         <li>\uc0\u10003  Manage & pay bills</li>\
+                         <li>\uc0\u10003  Up to 3 users</li>\
+                         <li>\uc0\u10003  Time tracking</li>\
+                     </ul>\
+                 </div>\
+\
+                 <div id="plan-plus" class="plan-card bg-white p-6 rounded-xl shadow-lg border border-gray-200 relative flex flex-col">\
+                     <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-2 sm:px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">Most Popular</div>\
+                     <h3 class="text-xl sm:text-2xl font-semibold text-gray-900">Plus</h3>\
+                     <p class="text-gray-500 mt-1 text-sm sm:text-base">For businesses needing advanced features.</p>\
+                     <p class="text-3xl sm:text-4xl font-bold text-gray-900 my-4">$50<span class="text-lg font-normal text-gray-500">/mo</span></p>\
+                     <div class="mt-auto">\
+                         <a href="#" class="w-full text-center qb-bg-green text-white py-2 px-4 rounded-full font-semibold hover:bg-green-700 mb-3 sm:mb-4 text-sm sm:text-base block">Buy Now</a>\
+                         <a href="#" class="w-full text-center border-2 qb-border-green qb-green py-2 px-4 rounded-full font-semibold hover:bg-green-50 text-sm sm:text-base block">Free 30-Day Trial</a>\
+                     </div>\
+                     <ul class="mt-6 space-y-2 text-sm text-gray-600">\
+                         <li>\uc0\u10003  All Essentials features, plus:</li>\
+                         <li>\uc0\u10003  Up to 5 users</li>\
+                         <li>\uc0\u10003  Project profitability tracking</li>\
+                         <li>\uc0\u10003  Inventory management</li>\
+                         <li>\uc0\u10003  Advanced reporting</li>\
+                     </ul>\
+                 </div>\
+\
+                 <div id="plan-you" class="plan-card bg-gray-800 p-6 rounded-xl shadow-lg border-2 qb-dark-border-green relative flex flex-col text-white">\
+                      <div class="absolute top-0 right-0 bg-qb-green text-white px-2 sm:px-3 py-1 text-xs font-bold rounded-bl-lg rounded-tr-lg">Advanced Needs</div>\
+                     <h3 class="text-xl sm:text-2xl font-semibold text-white">You Plan</h3>\
+                     <p class="text-gray-300 mt-1 text-sm sm:text-base">For comprehensive needs & dedicated support.</p>\
+                     <p class="text-3xl sm:text-4xl font-bold text-white my-4">$75<span class="text-lg font-normal text-gray-400">/mo</span></p>\
+                     <div class="mt-auto">\
+                         <a href="#" class="w-full text-center qb-dark-bg-green text-white py-2 px-4 rounded-full font-semibold hover:bg-green-800 mb-3 sm:mb-4 text-sm sm:text-base block">Contact Sales</a>\
+                         <a href="#" class="w-full text-center border-2 qb-dark-border-green qb-dark-green-text bg-white py-2 px-4 rounded-full font-semibold hover:bg-green-100 text-sm sm:text-base block">Free Consultation</a>\
+                     </div>\
+                     <ul class="mt-6 space-y-2 text-sm text-gray-300">\
+                         <li>\uc0\u10003  All Plus features, plus:</li>\
+                         <li>\uc0\u10003  Priority support</li>\
+                         <li>\uc0\u10003  Dedicated account manager</li>\
+                         <li>\uc0\u10003  Advanced workflows & customization</li>\
+                         <li>\uc0\u10003  Unlimited users</li>\
+                         <li>\uc0\u10003  Premium reporting</li>\
+                     </ul>\
+                 </div>\
+             </div>\
+             <div class="mt-12 text-center text-xs sm:text-sm text-gray-500">\
+                  <p><strong>Note:</strong> This is a conceptual mock-up for A/B Test Idea 1: "The Value-Driven Interactive Plan Selector".</p>\
+                  <p><strong>Version A (Control):</strong> The current QuickBooks Canada pricing page.</p>\
+                  <p><strong>Version B (This Mock-up):</strong> Introduces an interactive questionnaire with a custom plan option.</p>\
+              </div>\
+        </div>\
+    </div>\
+\
+    <footer class="bg-gray-800 mt-16">\
+        <div class="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 text-center">\
+            <p class="text-gray-400 text-xs sm:text-sm">\'a9 2025 Intuit Inc. All rights reserved. QuickBooks, QB, and Intuit are registered trademarks of Intuit Inc.</p>\
+        </div>\
+    </footer>\
+\
+    <script>\
+        // State for selections\
+        let selections = \{ goal: null, users: null, integrations: null, clients: null, features: null \}; // Added features\
+\
+        // DOM Elements\
+        const businessGoalSelect = document.getElementById('businessGoal');\
+        const userCountSelect = document.getElementById('userCount');\
+        const integrationNeedsSelect = document.getElementById('integrationNeeds');\
+        const clientManagementSelect = document.getElementById('clientManagement');\
+        const additionalFeaturesSelect = document.getElementById('additionalFeatures'); // Added additionalFeatures select\
+\
+        const findMyPlanBtn = document.getElementById('findMyPlanBtn');\
+        const recommendationArea = document.getElementById('recommendationArea');\
+        const recommendationReasonTextEl = document.getElementById('recommendationReasonText');\
+        const plansSectionTitleEl = document.getElementById('plansSectionTitle'); // Added\
+        const planSubtitleEl = document.getElementById('planSubtitle'); // Added\
+        const plansGridDisplayArea = document.getElementById('plansGridDisplayArea'); // The grid container to display cards\
+\
+        const yourRecommendationCard = document.getElementById('plan-your-recommendation'); // The dedicated recommended card TEMPLATE\
+        const yourPlanTitleEl = document.getElementById('yourPlanTitle');\
+        const yourPlanTaglineEl = document.getElementById('yourPlanTagline');\
+        const yourPlanPriceEl = document.getElementById('yourPlanPrice');\
+        const yourPlanDynamicFeaturesEl = document.getElementById('yourPlanDynamicFeatures');\
+        const yourPlanCTAEl = document.getElementById('yourPlanCTA');\
+\
+        // Container for original plan card templates\
+        const allPlansTemplateContainer = document.getElementById('allPlansTemplate');\
+\
+\
+        // Mobile menu toggle\
+        const mobileMenuButton = document.getElementById('mobileMenuButton');\
+        const mobileMenu = document.getElementById('mobile-menu');\
+        const menuIconOpen = document.getElementById('menuIconOpen');\
+        const menuIconClose = document.getElementById('menuIconClose');\
+\
+        mobileMenuButton.addEventListener('click', () => \{\
+            const isOpen = mobileMenu.classList.contains('open');\
+            mobileMenu.classList.toggle('open');\
+            menuIconOpen.classList.toggle('hidden', !isOpen);\
+            menuIconOpen.classList.toggle('block', isOpen);\
+            menuIconClose.classList.toggle('hidden', isOpen);\
+            menuIconClose.classList.toggle('block', !isOpen);\
+            mobileMenuButton.setAttribute('aria-expanded', !isOpen);\
+        \});\
+\
+\
+        // Event Listeners for dropdowns\
+        businessGoalSelect.addEventListener('change', function() \{\
+            selections.goal = this.value;\
+            checkSelections();\
+        \});\
+\
+        userCountSelect.addEventListener('change', function() \{\
+            selections.users = this.value;\
+            checkSelections();\
+        \});\
+\
+        integrationNeedsSelect.addEventListener('change', function() \{\
+            selections.integrations = this.value;\
+            checkSelections();\
+        \});\
+\
+        clientManagementSelect.addEventListener('change', function() \{\
+            selections.clients = this.value;\
+            checkSelections();\
+        \});\
+\
+        additionalFeaturesSelect.addEventListener('change', function() \{ // Added listener\
+             selections.features = this.value;\
+             checkSelections();\
+         \});\
+\
+\
+        function checkSelections() \{\
+            if (selections.goal && selections.users && selections.integrations && selections.clients && selections.features && // Check all 5\
+                selections.goal !== "" && selections.users !== "" && selections.integrations !== "" && selections.clients !== "" && selections.features !== "") \{\
+                findMyPlanBtn.disabled = false;\
+            \} else \{\
+                findMyPlanBtn.disabled = true;\
+            \}\
+        \}\
+\
+        function showRecommendation() \{\
+             // Ensure all required fields are selected before proceeding\
+             if (!selections.goal || !selections.users || !selections.integrations || !selections.clients || !selections.features ||\
+                 selections.goal === "" || selections.users === "" || selections.integrations === "" || selections.clients === "" || selections.features === "") \{\
+                 return;\
+             \}\
+\
+\
+            let recommendedPlanId; // ID of the standard card that is recommended\
+            let recommendationReason = "";\
+\
+             // Recommendation logic - Now considering additionalFeatures\
+             if (selections.users === "4+ People" || selections.integrations === "Advanced Integrations" || selections.clients === "Very Important" || selections.features === "Advanced Reporting" || selections.features === "Budgeting & Forecasting" || selections.features === "Unlimited Users") \{\
+                 recommendedPlanId = "plan-you";\
+                 recommendationReason = "Based on your need for multiple users, advanced integrations, comprehensive client management, or specific advanced features like reporting/budgeting.";\
+             \} else if (selections.users === "2-3 People" || selections.features === "Inventory Management" || selections.features === "Tracking Project Profitability" || selections.features === "Advanced Reporting" || selections.features === "Budgeting & Forecasting") \{\
+                 recommendedPlanId = "plan-plus";\
+                 recommendationReason = "Based on your need for multiple users, project tracking, inventory, or advanced reporting/budgeting.";\
+             \} else if (selections.features === "Paying Bills" || selections.features === "Track Time" || selections.users === "2-3 People" || selections.integrations === "Basic Integrations" || selections.clients === "Somewhat Important") \{\
+                 recommendedPlanId = "plan-essentials";\
+                 recommendationReason = "Based on your need for basic multi-user access, bill pay, time tracking, basic integrations, or some client management.";\
+             \} else \{\
+                 recommendedPlanId = "plan-easystart";\
+                 recommendationReason = "Based on your focus on basic finances with minimal additional needs.";\
+             \}\
+\
+\
+            // Find the source standard plan card template\
+            const sourcePlanCardTemplate = allPlansTemplateContainer.querySelector(`#$\{recommendedPlanId\}`);\
+\
+            if (!sourcePlanCardTemplate) \{\
+                console.error("Recommended plan template not found:", recommendedPlanId);\
+                return; // Should not happen if logic is correct\
+            \}\
+\
+            // Populate the dedicated 'Your Recommendation' card\
+            yourPlanTitleEl.textContent = sourcePlanCardTemplate.querySelector('h3').textContent;\
+            yourPlanTaglineEl.textContent = sourcePlanCardTemplate.querySelector('p:nth-of-type(1)').textContent; // Get the tagline paragraph\
+            yourPlanPriceEl.innerHTML = sourcePlanCardTemplate.querySelector('p:nth-of-type(2)').innerHTML; // Get the price HTML\
+\
+            // Populate dynamic features\
+            yourPlanDynamicFeaturesEl.innerHTML = ''; // Clear existing features\
+             const dynamicFeaturesList = [];\
+             dynamicFeaturesList.push(`<li class="qb-green-text font-semibold">Primary Goal: $\{selections.goal\}</li>`);\
+             dynamicFeaturesList.push(`<li class="qb-green-text font-semibold">Users: $\{selections.users\}</li>`);\
+             dynamicFeaturesList.push(`<li class="qb-green-text font-semibold">Integrations: $\{selections.integrations\}</li>`);\
+             dynamicFeaturesList.push(`<li class="qb-green-text font-semibold">Client Management: $\{selections.clients\}</li>`);\
+             if (selections.features !== "None") \{\
+                  dynamicFeaturesList.push(`<li class="qb-green-text font-semibold">Specific Need: $\{selections.features\}</li>`);\
+             \}\
+\
+             // Add core features from the recommended plan template's list items\
+             const templateFeatures = sourcePlanCardTemplate.querySelectorAll('ul li');\
+             templateFeatures.forEach(li => \{\
+                 // Add feature if it's not already covered by the dynamic ones (simple text check)\
+                 if (!dynamicFeaturesList.some(f => f.includes(li.textContent.trim()))) \{\
+                     dynamicFeaturesList.push(`<li>$\{li.innerHTML\}</li>`); // Use innerHTML to keep the checkmark SVG\
+                 \}\
+             \});\
+\
+             yourPlanDynamicFeaturesEl.innerHTML = dynamicFeaturesList.join('');\
+\
+             // Update CTA link (optional, could link to a plan-specific sign-up page)\
+             // yourPlanCTAEl.href = `#link-for-$\{recommendedPlanId\}`;\
+\
+            // Update recommendation text\
+            recommendationReasonTextEl.textContent = recommendationReason;\
+\
+\
+            // --- Update the displayed plans ---\
+            plansGridDisplayArea.innerHTML = ''; // Clear the display grid\
+\
+            // Append the dedicated 'Your Recommendation' card first\
+            plansGridDisplayArea.appendChild(yourRecommendationCard);\
+            yourRecommendationCard.classList.remove('hidden'); // Show it\
+            yourRecommendationCard.classList.add('your-recommended-plan'); // Add highlight class\
+\
+            // Append all standard plan cards from the template, faded\
+            const standardPlanTemplates = allPlansTemplateContainer.querySelectorAll('.plan-card:not(#plan-your-recommendation)');\
+            standardPlanTemplates.forEach(templateCard => \{\
+                // Clone the template card to avoid moving the original out of the template container\
+                const standardCardClone = templateCard.cloneNode(true);\
+                plansGridDisplayArea.appendChild(standardCardClone);\
+                standardCardClone.classList.add('faded-plan'); // Fade the standard cards\
+                standardCardClone.classList.remove('your-recommended-plan'); // Ensure they aren't highlighted\
+                 // Remove the absolute positioning/badges from faded cards if they exist (optional clean up)\
+                 standardCardClone.querySelectorAll('.absolute').forEach(badge => badge.remove());\
+            \});\
+\
+            // Apply grid styling for recommended state\
+            plansGridDisplayArea.classList.add('is-recommended');\
+\
+            // Show sections\
+            document.getElementById('interactiveSelector').classList.add('hidden');\
+            recommendationArea.classList.remove('hidden');\
+            // The plansGridDisplayArea was already targeted, no need to show a parent section for it specifically unless there was one\
+            // Ensure the 'Our Plans' title and subtitle are visible\
+             plansSectionTitleEl.classList.remove('hidden');\
+             planSubtitleEl.classList.remove('hidden');\
+        \}\
+\
+        // Initial setup on page load\
+        document.addEventListener('DOMContentLoaded', function() \{\
+             // No need to move cards initially if they are in a hidden template container\
+             checkSelections(); // Check initial state of form\
+        \});\
+\
+    </script>\
+\
+</body>\
+</html>}
